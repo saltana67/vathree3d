@@ -12,13 +12,23 @@
 
     <properties>
         <java.version>21</java.version>
-        <vaadin.version>24.6.0</vaadin.version>
+         <!-- MVNW_VERBOSE=true mvn wrapper:wrapper -Dtype=bin -->
+        <maven.version>3.9.9</maven.version>
+        <vaadin.version>24.6.2</vaadin.version>
+        <!-- 
+            to perform version check run 
+            mvn versions:display-parent-updates versions:display-property-updates versions:display-plugin-updates -DprocessDependencyManagementTransitive=false versions:display-dependency-updates
+            
+            to actually PERFORM version updates run 
+            mvn versions:update-properties versions:use-latest-releases
+        -->
+
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>3.4.2</version>
     </parent>
 
     <repositories>
@@ -98,6 +108,50 @@
 
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.5.0</version>
+				</plugin>
+				<plugin>
+				    <groupId>pl.project13.maven</groupId>
+				    <artifactId>git-commit-id-plugin</artifactId>
+				    <version>4.9.10</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.18.0</version>
+					<configuration>
+						<ruleSet>
+							<!-- ignore alpha, previes etc versions -->
+							<ignoreVersions>
+								<ignoredVersions>
+									<type>regex</type>
+									<version>(.*[-.][Aa][Ll][Pp][Hh][Aa].*|.*-beta.*|.*[Bb][Ee][Tt][Aa].*|.*[-.]preview.*|.*-M[0-9]*|.*[-.][Rr][Cc][0-9]*|.*[Cr][Rr][0-9]*)</version>
+								</ignoredVersions>
+							</ignoreVersions>										
+						</ruleSet>
+					</configuration>
+				</plugin>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-compiler-plugin</artifactId>
+				    <version>3.13.0</version>
+				    <configuration>
+						<release>${java.version}</release>
+						<compilerArgs>
+							<arg>-proc:full</arg>
+						</compilerArgs>
+					</configuration>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+        
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -106,7 +160,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
+                <version>2.44.2</version>
                 <configuration>
                     <java>
                         <eclipse>
@@ -143,6 +197,43 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>${maven.version}</version>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+			    <groupId>pl.project13.maven</groupId>
+			    <artifactId>git-commit-id-plugin</artifactId>
+			    <executions>
+			        <execution>
+			            <id>get-the-git-infos</id>
+			            <goals>
+			                <goal>revision</goal>
+			            </goals>
+			            <phase>validate</phase>
+			        </execution>
+			    </executions>
+			    <configuration>
+			        <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+			    </configuration>
+			</plugin>
+			
+            
         </plugins>
     </build>
 
