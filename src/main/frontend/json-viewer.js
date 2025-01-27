@@ -1,12 +1,12 @@
 class JsonViewer {
+	static Object_prototype_toString = ({}).toString;
+	static DatePrototypeAsString = JsonViewer.Object_prototype_toString.call(new Date);
 	
 	constructor() {
-		this.Object_prototype_toString = ({}).toString;
-		this.DatePrototypeAsString = this.Object_prototype_toString.call(new Date);
 	}
 	
 	init(element){
-		this._dom_container = element;
+		this.setContainer(element);
 		this._dom_container.classList.add("json-viewer");
 	}
 	
@@ -31,7 +31,13 @@ class JsonViewer {
 	getContainer() {
 		return this._dom_container;
 	}
-
+	setContainer(element) {
+		this._dom_container = element;	
+	}
+	
+	static checkIsDate(value) {
+		return this.Object_prototype_toString.call(value) === this.DatePrototypeAsString;
+	}
 	/**
 	 * Recursive walk for input value.
 	 * 
@@ -42,7 +48,7 @@ class JsonViewer {
 	 * @param {Number} lvl Current level
 	 */
 	walkJSONTree(outputParent, value, maxLvl, colAt, lvl) {
-		var isDate = this.Object_prototype_toString.call(value) === this.DatePrototypeAsString;
+		var isDate = JsonViewer.checkIsDate(value);
 		var realValue = !isDate && typeof value === "object" && value !== null && "toJSON" in value ? value.toJSON() : value;
 		if (typeof realValue === "object" && realValue !== null && !isDate) {
 			var isMaxLvl = maxLvl >= 0 && lvl >= maxLvl;
@@ -268,5 +274,11 @@ window.initJsonViewer = function(element) {
 	const tt = new JsonViewer();
 	tt.init(element);
 	const jsonString = '{"model":{"prop1":1234, "prop2": "some text"}}';
+	tt.showJSON(JSON.parse(jsonString));
+}
+
+window.JsonViewerSetString = function(element,jsonString) {
+	const tt = new JsonViewer();
+	tt.setContainer(element);
 	tt.showJSON(JSON.parse(jsonString));
 }
